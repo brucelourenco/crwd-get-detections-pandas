@@ -1,2 +1,2 @@
-# Querying detections from Crowdstrike API using FalconPy library and Pandas
+# Crowdstrike querying detections
 

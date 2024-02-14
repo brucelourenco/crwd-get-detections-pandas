@@ -7,7 +7,7 @@ For this I'm using [FalconPy](https://github.com/CrowdStrike/falconpy), a Python
 ## Requirements
 
 `conda 23.11.0`<br/>
-`Python 3.11.5`<br/>
+`python 3.11.5`<br/>
 `pandas 2.0.3`<br/>
 `crowdstrike-falconpy 1.4.0`<br/>
 

@@ -1,3 +1,4 @@
+import argparse
 import configparser
 
 import pandas as pd
@@ -35,22 +36,22 @@ PTD_ACTIONS = {
 }
 
 
-def get_credentials():
+def get_credentials(configfile):
     cfg = configparser.ConfigParser()
-    with open(CONFIGFILE, "r") as f:
+    with open(configfile, "r") as f:
         cfg.read_file(f)
     return cfg.get("CLIENT_ID", "CLIENT_ID"), cfg.get("CLIENT_SECRET", "CLIENT_SECRET")
 
 
-def get_falcon_instance():
-    client_id, client_secret = get_credentials()
+def get_falcon_instance(configfile):
+    client_id, client_secret = get_credentials(configfile)
     return Detects(client_id=client_id, client_secret=client_secret)
 
 
-def get_detection_ids(falcon):
+def get_detection_ids(falcon, start_date, end_date):
     response = falcon.query_detects(
         limit=9999,
-        filter="last_behavior:>='2024-01-01'+last_behavior:<='2024-01-03'+max_severity_displayname:!'Informational'",
+        filter=f"last_behavior:>='{start_date}'+last_behavior:<='{end_date}'+max_severity_displayname:!'Informational'",
         sort="last_behavior",
     )
     if response["status_code"] == 200:
@@ -119,8 +120,34 @@ def populate_dataframe(detections):
 
 
 def main():
-    falcon = get_falcon_instance()
-    id_detections = get_detection_ids(falcon)
+    """
+    Process the detections and generate an Excel file with the results.
+
+    This function takes command line arguments, such as the path to the configuration file,
+    the output file name, the start and end dates for the last_behavior filter. It then
+    retrieves the detection details, adjusts the datetime, populates a dataframe, performs
+    value counts, sorting, dropping duplicates, and merging. Finally, it saves the merged
+    dataframe to an Excel file.
+
+    Args:
+        --configfile (str): Path to the configuration file.
+        --file_name (str): Path to the output file.
+        --start_date (str): Start date for the last_behavior filter.
+        --end_date (str): End date for the last_behavior filter.
+
+    Returns:
+        None
+    """
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--config', required=True, help='Path to the configuration file')
+    parser.add_argument('--o', required=True, help='Path to the output file')
+    parser.add_argument('--start_date', required=True, help='Start date for the last_behavior filter')
+    parser.add_argument('--end_date', required=True, help='End date for the last_behavior filter')
+
+    args = parser.parse_args()
+
+    falcon = get_falcon_instance(args.configfile)
+    id_detections = get_detection_ids(falcon, args.start_date, args.end_date)
     detections = get_detection_details(falcon, id_detections)
     detections = adjust_datetime(detections)
     df = populate_dataframe(detections)
@@ -131,8 +158,7 @@ def main():
     sorted_df = df.sort_values(by=["HOSTNAME", "LAST_DETECTION"], ascending=False)
     df_droped = sorted_df.drop_duplicates(subset=["HOSTNAME", "FILENAME"], keep="first")
     df_merged = pd.merge(df_droped, df_count, on=["HOSTNAME", "FILENAME"])
-    file_name = "/YOUR/PATH_TO/OUTPUT.xlsx"
-    df_merged.to_excel(file_name)
+    df_merged.to_excel(args.file_name)
 
 
 if __name__ == "__main__":

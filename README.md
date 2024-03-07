@@ -28,9 +28,9 @@ The main goal is to summarize the detections by host, maintaining only the last 
 `python 3.11.5`<br/>
 `pandas 2.0.3`<br/>
 `crowdstrike-falconpy 1.4.0`<br/>
-3. Replace the `CONFIGFILE` variable in the script with the path to your CrowdStrike API credentials file.
-4. Replace the `file_name` variable in the main function with the path where you want the Excel file to be saved.
-5. Run the script.
+1. Create a `CONFIGFILE` with the path to your CrowdStrike API credentials.
+2. Now you can run your script from the command line like this: `python crwd_get_detections --config /path/to/config.ini --o /path/to/output.xlsx --start_date 2024-01-01 --end_date 2024-01-03`.
+3. And you can get help on the command line arguments like this: `python crwd_get_detections -h`.
 ```python
 python crwd_get_detections
 ```

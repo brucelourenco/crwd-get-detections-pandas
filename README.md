@@ -1,6 +1,6 @@
 # Crowdstrike Querying Detections - DEPRECATED 
 
-*I'm working to make new scripts using the new /alerts set of endpoints since /detects was announced to be decommissioned in Apr/2025.*
+**I'm working to make new scripts using the new /alerts set of endpoints since /detects was announced to be decommissioned in Apr/2025.**
 #
 
 This Python script uses the FalconPy SDK to interact with the CrowdStrike Falcon Platform's APIs and retrieve detection data. The data is then processed and exported to an Excel file for further analysis.
